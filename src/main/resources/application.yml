@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: security-app
+  profiles:
+    active: dev
+    # active: @spring.profiles.active@
+  data:
+    redis:
+      host: localhost
+      port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+openapi:
+  service:
+    api-docs: api-service
+    server: http://localhost:3000
+    title: API Service
+    version: 1.0.0
+  
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+openapi:
+  service:
+    api-docs: api-service
+    server: http://localhost:3001
+    title: API Service
+    version: 1.0.0
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+openapi:
+  service:
+    api-docs: api-service
+    server: http://localhost:3002
+    title: API Service
+    version: 1.0.0
