@@ -17,13 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   @Query("SELECT u FROM User u WHERE u.username=?1")
   User findByUsername(String username);
 
-  @Query("SELECT u FROM User u WHERE u.Email=?1")
+  @Query("SELECT u FROM User u WHERE u.email=?1")
   Optional<User> findByEmail(String email);
 
   @Query("SELECT u FROM User u JOIN u.roles r WHERE u.id LIKE %?1 OR u.email LIKE %?1 OR u.username LIKE %?1 OR r.name LIKE %?1")
   Page<User> findAll(String keyword, Pageable pagable);
 
-  @Query("UPDATE User u SET u.status = ?2 WHERE u.id=?1")
-  @Modifying
-  void updateStatus(Long id, boolean status);
 }

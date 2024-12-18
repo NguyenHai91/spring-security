@@ -2,6 +2,7 @@ package com.hainguyen.security.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,13 +21,13 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import com.hainguyen.security.security.jwt.JwtAuthFilter;
 import com.hainguyen.security.security.oauth2.JWTtoUserConvertor;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-  @Bean
-  UserDetailsService customUserDetailsService() {
-    return new CustomUserDetailsService();
-  }
+
+  @Autowired
+  private UserDetailsService userDetailsService;
 
   @Bean
   PasswordEncoder passwordEncoder() {
@@ -40,13 +41,13 @@ public class SecurityConfig {
   @Bean
   DaoAuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(customUserDetailsService());
+    authenticationProvider.setUserDetailsService(userDetailsService);
     authenticationProvider.setPasswordEncoder(passwordEncoder());
     return authenticationProvider;
   }
 
   @Bean
-  public JwtAuthFilter jwtAuthFilter() {
+  JwtAuthFilter jwtAuthFilter() {
     return new JwtAuthFilter(exceptionResolver);
   }
 
@@ -54,25 +55,26 @@ public class SecurityConfig {
   public JWTtoUserConvertor jWtToUserConvertor;
 
   // @Bean
-  // public WebMvcConfigurer corsConfigurer() {
+  // WebMvcConfigurer corsConfigurer() {
   //   return new WebMvcConfigurer() {
   //     public void addCorsMappings(CorsRegistry registry) {
-  //       registry.addMapping("**")
+  //       registry.addMapping("/**")
   //               .allowedOrigins("http://localhost:3000")
   //               .allowCredentials(false)
-  //               .allowedHeaders("*")
-  //               .maxAge(3600);
+  //               .allowedHeaders("*");
   //     }
   //   };
   // }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     String[] endpoints = {"/login", "/api/**"};
     http.csrf(AbstractHttpConfigurer::disable)
-      .cors(cors -> cors.disable())
+      .cors(Customizer.withDefaults())
       .authorizeHttpRequests(
       request -> request
+        .requestMatchers("/user").hasAuthority("ADMIN")
+        .requestMatchers("/role").hasAnyAuthority("ADMIN", "CUSTOMER")
         .requestMatchers(endpoints).permitAll()
         .anyRequest().permitAll()
       )

@@ -6,17 +6,9 @@ import org.springframework.stereotype.Service;
 import com.hainguyen.security.model.Profile;
 import com.hainguyen.security.repository.ProfileRepository;
 
-@Service
-public class ProfileService {
-    @Autowired
-    private ProfileRepository profileRepository;
 
-    public Long save(Profile profile) {
-        Profile savedProfile = profileRepository.save(profile);
-        return savedProfile.getId();
-    }
+public interface ProfileService {
+    Long save(Profile profile);
 
-    public void deleteProfile(Long id) {
-        profileRepository.deleteById(id);
-    }
+    void deleteProfile(Long id);
 }

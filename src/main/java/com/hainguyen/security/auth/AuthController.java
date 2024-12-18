@@ -1,5 +1,7 @@
 package com.hainguyen.security.auth;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,8 +20,8 @@ import com.hainguyen.security.dto.response.AuthResponse;
 import com.hainguyen.security.exception.CustomException;
 import com.hainguyen.security.model.Token;
 import com.hainguyen.security.model.User;
-import com.hainguyen.security.security.RedisTokenService;
 import com.hainguyen.security.security.jwt.JwtTokenUtils;
+import com.hainguyen.security.service.RedisTokenService;
 import com.hainguyen.security.service.TokenService;
 import com.hainguyen.security.service.UserService;
 
@@ -59,7 +61,7 @@ public class AuthController {
       }
       Token tokenRecord = createTokenRecord(user);
       tokenService.save(tokenRecord);
-      redisTokenService.createToken(tokenRecord);
+      redisTokenService.setAuthToken(tokenRecord);
       log.info("Logged token to redis: {}", tokenRecord.getId());
       
       AuthResponse authResponse = AuthResponse.builder()
@@ -95,8 +97,11 @@ public class AuthController {
       }
       String newToken = jwtTokenUtils.createToken(user);
       Token tokenRecord = tokenService.getByRefreshToken(refreshToken);
+      String oldToken = tokenRecord.getToken();
       tokenRecord.setToken(newToken);
       tokenService.updateToken(tokenRecord);
+      redisTokenService.deleteAuthToken(oldToken);
+      redisTokenService.setAuthToken(tokenRecord);
       return ResponseEntity.ok(newToken);
     }
     return ResponseEntity.badRequest().body("Refresh token is invalid");
@@ -112,15 +117,18 @@ public class AuthController {
     if (token == null) {
       return ResponseEntity.badRequest().body("User not authenticated");
     }
-    Token tokenRecord = tokenService.getByToken(token);
+    Token tokenRecord = (Token) redisTokenService.getAuthToken(token);
+    if (tokenRecord != null) {
+      redisTokenService.deleteAuthToken(token);
+    }
+    tokenRecord = tokenService.getByToken(token);
     if (tokenRecord == null || !tokenRecord.isStatus()) {
       return ResponseEntity.badRequest().body("Token invalid");
     }
-    jwtTokenUtils.verifyToken(token);
     new SecurityContextLogoutHandler().logout(request, response, authentication);
     authentication.setAuthenticated(false);
     tokenService.delete(tokenRecord.getId());
-    return ResponseEntity.ok("User is logout");
+    return ResponseEntity.ok("User had logout");
   }
 
   @PostMapping("/forgot-password")

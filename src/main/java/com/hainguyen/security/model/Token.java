@@ -22,7 +22,7 @@ import net.minidev.json.annotate.JsonIgnore;
 @Table(name = "token")
 @Entity
 public class Token extends BaseEntity<Long> {
-
+  @Id
   @Column(nullable= false)
   private String token;
 
