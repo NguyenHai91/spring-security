@@ -15,19 +15,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hainguyen.security.config.i18n.Translator;
+import com.hainguyen.security.dto.request.SendMailRequest;
 import com.hainguyen.security.dto.request.UserRequest;
+import com.hainguyen.security.dto.response.ApiResponse;
+import com.hainguyen.security.exception.CustomException;
+import com.hainguyen.security.exception.ErrorResponse;
 import com.hainguyen.security.model.Profile;
 import com.hainguyen.security.model.Role;
 import com.hainguyen.security.model.User;
+import com.hainguyen.security.service.MailService;
 import com.hainguyen.security.service.ProfileService;
 import com.hainguyen.security.service.RoleService;
 import com.hainguyen.security.service.UserService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-
+@Slf4j
 @RequestMapping("/api/user")
 @RestController
 public class UserController {
@@ -39,6 +46,9 @@ public class UserController {
 
   @Autowired
   private RoleService roleService;
+
+  @Autowired
+  private MailService mailService;
 
   @GetMapping("/all")
   public ResponseEntity<?> getAll() {
@@ -98,6 +108,21 @@ public class UserController {
   @GetMapping("/lang")
   public ResponseEntity language() {
     return ResponseEntity.ok(Translator.toLocale("user.add.success"));
+  }
+
+  @PostMapping("/send-email")
+  public ApiResponse postMethodName(@RequestBody SendMailRequest sendMailRequest) {
+     try {
+      mailService.sendMail(sendMailRequest.getRecipients(), 
+          sendMailRequest.getSubject(), 
+          sendMailRequest.getContent(), 
+          sendMailRequest.getFiles()
+      );
+      return new ApiResponse(200, "Send email success", null);
+     } catch (Exception e) {
+      log.error("Sending email was failure, error: {}", e.getMessage());
+      throw new CustomException("Sending email was failure");
+     }
   }
 
 }
