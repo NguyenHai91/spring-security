@@ -29,6 +29,6 @@ public class User extends BaseEntity<Long> {
   @Max(value= 50, message="length password is less than 50 characters")
   private String password;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+  @OneToMany(fetch = FetchType.EAGER)
   private List<Role> roles;
 }

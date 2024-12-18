@@ -2,30 +2,20 @@ package com.hainguyen.security.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.hainguyen.security.model.Role;
-import com.hainguyen.security.repository.RoleRepository;
 
-@Service
-public class RoleService {
-    @Autowired
-    private RoleRepository roleRepository;
 
-    public Role create(Role role) {
-        return roleRepository.save(role);
-    }
+public interface RoleService {
 
-    public Role getRoleById(String id) {
-        return roleRepository.findById(id).get();
-    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+     Role create(Role role);
 
-    public List<Role> getAll() {
-        return roleRepository.findAll();
-    }
+     Role getRoleById(String id);
 
-    // public Role getRoleByName(String name) {
-    //     return roleRepository.findByName(name).get();
-    // }
+     @PreAuthorize("hasAuthority('ADMIN')")
+     List<Role> getAll();
+
+    // Role getRoleByName(String name);
 }

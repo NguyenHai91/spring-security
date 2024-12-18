@@ -39,6 +39,6 @@ public class Profile extends BaseEntity<Long> {
     @Max(value=250, message="Length city too long, max is 250 characters")
     private String city;
 
-    @OneToOne(fetch=FetchType.LAZY, cascade=CascadeType.REMOVE)
+    @OneToOne(fetch=FetchType.LAZY)
     private User user;
 }

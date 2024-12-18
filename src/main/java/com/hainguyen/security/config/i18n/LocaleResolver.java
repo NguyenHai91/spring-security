@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -30,12 +31,24 @@ public class LocaleResolver extends AcceptHeaderLocaleResolver implements WebMvc
     }
 
     @Bean
-    public ResourceBundleMessageSource bundleMessageSource() {
+    ResourceBundleMessageSource bundleMessageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("messages/messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setDefaultLocale(new Locale("en"));
         messageSource.setCacheSeconds(3600);
         return messageSource;
+    }
+
+    @Bean
+    WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/**")
+                    .allowedOrigins("http://localhost:3000")
+                    .allowCredentials(false)
+                    .allowedHeaders("*");
+        }
+        };
     }
 }

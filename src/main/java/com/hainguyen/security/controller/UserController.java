@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,8 @@ import com.hainguyen.security.service.RoleService;
 import com.hainguyen.security.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RequestMapping("/api/user")
@@ -36,7 +40,14 @@ public class UserController {
   @Autowired
   private RoleService roleService;
 
+  @GetMapping("/all")
+  public ResponseEntity<?> getAll() {
+    List<User> listUser = userService.getAll();
+    return ResponseEntity.ok(listUser);
+  }
+
   @PostMapping("/save")
+  @PreAuthorize("hasAuthority('ADMIN')")
   public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userDto) {
     if (userService.findByEmail(userDto.getEmail()).getId() > 0) {
       return ResponseEntity.badRequest().body("Email had been register");
@@ -58,6 +69,7 @@ public class UserController {
   }
 
   @PostMapping("/update")
+  @PostAuthorize("returnObject.username == authentication.principle.username")
   public ResponseEntity<?> updateUser(@RequestBody UserRequest userDto){
     User updatingUser = userService.findByUsername(userDto.getUsername());
     if (updatingUser == null) {

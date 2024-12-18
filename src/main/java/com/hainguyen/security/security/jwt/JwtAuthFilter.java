@@ -1,6 +1,8 @@
 package com.hainguyen.security.security.jwt;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import com.hainguyen.security.exception.AppExceptionHandler;
 import com.hainguyen.security.exception.CustomException;
 import com.hainguyen.security.model.Token;
+import com.hainguyen.security.service.BaseRedisService;
 import com.hainguyen.security.service.TokenService;
 
 import jakarta.servlet.FilterChain;
@@ -27,6 +30,9 @@ public class JwtAuthFilter extends OncePerRequestFilter{
 
   @Autowired
   private TokenService tokenService;
+
+  @Autowired
+  private BaseRedisService redisService;
   
   @Autowired
   private AppExceptionHandler appExceptionHandler;
@@ -45,10 +51,18 @@ public class JwtAuthFilter extends OncePerRequestFilter{
     }
     String token = jwtTokenUtils.getToken(request);
 
-    Token tokenRecord = tokenService.getByToken(token);
+    Token tokenRecord = (Token) redisService.hashGet(token, "token");
+    if (Objects.isNull(tokenRecord)) {
+      tokenRecord = tokenService.getByToken(token);
+    }
+
+    if (Objects.isNull(tokenRecord)) {
+      filterChain.doFilter(request, response);
+      throw new CustomException("You're not authenticated");
+    }
     if (!tokenRecord.isStatus()) {
       filterChain.doFilter(request, response);
-      throw new CustomException("Token inactived");
+      throw new CustomException("Token invalid");
     }
 
     try {
@@ -61,4 +75,5 @@ public class JwtAuthFilter extends OncePerRequestFilter{
     }
     filterChain.doFilter(request, response);
   }
+
 }

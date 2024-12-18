@@ -22,7 +22,7 @@ public class RedisConfig {
     private int redisPort;
     
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
+    JedisConnectionFactory jedisConnectionFactory() {
         log.info("Connecting redis: {}:{}", redisHost, redisPort);
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(redisHost);
@@ -31,7 +31,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
         log.info("Redis connected !");
