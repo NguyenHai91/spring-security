@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +31,7 @@ import com.hainguyen.security.service.RoleService;
 import com.hainguyen.security.service.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -111,18 +114,30 @@ public class UserController {
   }
 
   @PostMapping("/send-email")
-  public ApiResponse postMethodName(@RequestBody SendMailRequest sendMailRequest) {
+  public ResponseEntity<?> sendMail(@RequestBody SendMailRequest sendMailRequest) {
      try {
-      mailService.sendMail(sendMailRequest.getRecipients(), 
-          sendMailRequest.getSubject(), 
-          sendMailRequest.getContent(), 
-          sendMailRequest.getFiles()
-      );
-      return new ApiResponse(200, "Send email success", null);
+      mailService.sendConfirmLinkToEmail(sendMailRequest.getRecipients(), 01L, "123");
+      return ResponseEntity.ok("sent link confirm to your email, please check email");
      } catch (Exception e) {
       log.error("Sending email was failure, error: {}", e.getMessage());
-      throw new CustomException("Sending email was failure");
+      throw new CustomException("Sending email was failure: " );
      }
+  }
+
+  @PostMapping("/confirm-user/{idUser}")
+  public ResponseEntity<?> confirmUser(@Min(1) @PathVariable Long idUser, @RequestParam String code) {
+    try {
+      //check user and code 
+      boolean check = mailService.checkCodeUser(idUser, code);
+      if (check) {
+        return ResponseEntity.ok("success");
+      }
+      throw new CustomException("Confirm failed");
+    } catch (Exception e) {
+      throw new CustomException("Confirm failed");
+    } finally {
+      //
+    }
   }
 
 }

@@ -4,13 +4,10 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.hainguyen.security.enums.EGender;
 import com.hainguyen.security.model.Profile;
 import com.hainguyen.security.model.Role;
 import com.hainguyen.security.model.User;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;

@@ -1,18 +1,21 @@
-package com.hainguyen.security.auth;
+package com.hainguyen.security.controller;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 
 import com.hainguyen.security.dto.request.AuthRequest;
 import com.hainguyen.security.dto.request.ResetPassword;
@@ -21,6 +24,7 @@ import com.hainguyen.security.exception.CustomException;
 import com.hainguyen.security.model.Token;
 import com.hainguyen.security.model.User;
 import com.hainguyen.security.security.jwt.JwtTokenUtils;
+import com.hainguyen.security.security.oauth2.OAuthService;
 import com.hainguyen.security.service.RedisTokenService;
 import com.hainguyen.security.service.TokenService;
 import com.hainguyen.security.service.UserService;
@@ -29,12 +33,16 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @Slf4j
 @RequestMapping("/api/auth")
 @RestController
 public class AuthController {
+
+  @Autowired
+  private OAuthService oauthService;
 
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
   
@@ -148,9 +156,9 @@ public class AuthController {
     tokenRecord.setStatus(true);
     tokenService.save(tokenRecord);
     //send email confirm link
-    String confirmLink = String.format("curl --location 'http://localhost:3000/api/auth/confirm-reset' \\\n" +
-                         "header 'accept: */*' \\\n" +
-                         "header 'Content-Type: application/json' \\\n" +
+    String confirmLink = String.format("curl --location 'http://localhost:3000/api/auth/confirm-reset' \n" +
+                         "header 'accept: */*' \n" +
+                         "header 'Content-Type: application/json' \n" +
                          "--data 'resetKey:%s'", resetKey);
     return ResponseEntity.ok(confirmLink);
   }
@@ -187,4 +195,45 @@ public class AuthController {
     userService.changePassword(user, password);
     return ResponseEntity.ok("password had changed success");
   }
+
+  // OAuth2
+  @GetMapping("/social")
+  public ResponseEntity<String> socialAuth(
+    @RequestParam("login_type") String loginType,
+    HttpServletRequest request
+  ) {
+    loginType = loginType.trim().toLowerCase();
+    String url = oauthService.generateAuthUrl(loginType);
+    return ResponseEntity.ok(url);
+  }
+
+  @GetMapping("/facebook/callback")
+  public ResponseEntity callbackOauthFacebook(
+    @RequestParam("code") String code,
+    HttpServletRequest request
+  ) throws RestClientException, IOException {
+    Map<String, Object> userInfo = oauthService.authenticateAndFetchProfile(code, "facebook");
+
+    if (userInfo == null) {
+      return ResponseEntity.badRequest().body("authenticate with facebook failed");
+    }
+
+    return ResponseEntity.ok(userInfo);
+  }
+
+  @GetMapping("/google/callback")
+  public ResponseEntity callbackOauthGoogle(
+    @RequestParam("code") String code,
+    HttpServletRequest request
+  ) throws RestClientException, IOException {
+    Map<String, Object> userInfo = oauthService.authenticateAndFetchProfile(code, "google");
+
+    if (userInfo == null) {
+      return ResponseEntity.badRequest().body("Failed to authenticate");
+    }
+
+    return ResponseEntity.ok(userInfo);
+  }
+
+
 }

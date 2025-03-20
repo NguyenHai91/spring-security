@@ -11,6 +11,31 @@ spring:
 
 ---
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          facebook:
+            client-id: 880427056958015
+            client-secret: d4798e653ab66ec58e143472a0031b12
+            auth-uri: https://www.facebook.com/v21.0/dialog/oauth
+            redirect-uri: http://localhost:3000/api/auth/facebook/callback
+            token-uri: https://graph.facebook.com/v21.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture
+            scope:
+              - email
+              - public_profile
+          google:
+            client-id: 
+            client-secret:
+            redirect-uri: http://localhost:3000/api/auth/google/callback
+            user-info-uri: https://googleapis.com/oauth2/v3/userinfo
+            resource-server:
+              opaque-token:
+                introspection-uri: https://www.googleapis.com
+
+---
+spring:
   config:
     activate:
       on-profile: dev
