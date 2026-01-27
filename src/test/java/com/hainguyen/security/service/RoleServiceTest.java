@@ -12,8 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.hainguyen.security.model.Role;
-import com.hainguyen.security.repository.RoleRepository;
+import com.hainguyen.security.role.Role;
+import com.hainguyen.security.role.RoleRepository;
+import com.hainguyen.security.role.RoleService;
 
 
 @ExtendWith(MockitoExtension.class)

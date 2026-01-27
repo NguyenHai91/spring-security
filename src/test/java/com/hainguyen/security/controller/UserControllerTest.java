@@ -1,4 +1,4 @@
-
+package com.hainguyen.security.controller;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
@@ -12,11 +12,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hainguyen.security.controller.UserController;
-import com.hainguyen.security.dto.request.UserRequest;
-import com.hainguyen.security.model.User;
-import com.hainguyen.security.repository.UserRepository;
-import com.hainguyen.security.service.UserService;
+import com.hainguyen.security.user.User;
+import com.hainguyen.security.user.UserController;
+import com.hainguyen.security.user.UserRepository;
+import com.hainguyen.security.user.UserService;
+import com.hainguyen.security.user.dto.UserRequest;
 
 
 @WebMvcTest(UserController.class)

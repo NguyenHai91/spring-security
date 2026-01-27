@@ -1,0 +1,146 @@
+package com.hainguyen.security.user;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.hainguyen.security.common.exception.CustomException;
+import com.hainguyen.security.common.sendMail.MailService;
+import com.hainguyen.security.common.sendMail.dto.SendMailRequest;
+import com.hainguyen.security.config.i18n.Translator;
+import com.hainguyen.security.profile.Profile;
+import com.hainguyen.security.profile.ProfileService;
+import com.hainguyen.security.role.Role;
+import com.hainguyen.security.role.RoleService;
+import com.hainguyen.security.user.dto.UserRequest;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
+
+@Tag(name = "BASE API")
+@Slf4j
+@SecurityRequirement(name = "Bearer Authentication")
+@RequestMapping("/api/user")
+@RestController
+public class UserController {
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private ProfileService profileService;
+
+  @Autowired
+  private RoleService roleService;
+
+  @Autowired
+  private MailService mailService;
+
+  @Operation(summary = "List all api", description = "Response list of users")
+  @GetMapping("/all")
+  public ResponseEntity<?> getAll() {
+    List<User> listUser = userService.getAll();
+    return ResponseEntity.ok(listUser);
+  }
+
+  @Operation(summary = "Create a user")
+  @PostMapping("/save")
+  @PreAuthorize("hasAuthority('ADMIN')")
+  public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userDto) {
+    if (userService.findByEmail(userDto.getEmail()).getId() > 0) {
+      return ResponseEntity.badRequest().body("Email had been register");
+    }
+    User newUser = UserRequest.mapToEntity(userDto);
+    List<Role> roles = new ArrayList<>();
+    for (Role item : userDto.getRoles()) {
+        Role role = roleService.getRoleById(item.getName());
+        roles.add(role);
+    }
+    newUser.setRoles(userDto.getRoles());
+    userService.save(newUser);
+   
+    Profile profile = new Profile();
+    profile = UserRequest.mapToProfile(userDto);
+    profile.setUser(newUser);
+    profileService.save(profile);
+    return ResponseEntity.ok("Create user success");
+  }
+
+  @Operation(summary = "Update a info user")
+  @PostMapping("/update")
+  @PostAuthorize("returnObject.username == authentication.principle.username")
+  public ResponseEntity<?> updateUser(@RequestBody UserRequest userDto){
+    User updatingUser = userService.findByUsername(userDto.getUsername());
+    if (updatingUser == null) {
+      return ResponseEntity.badRequest().body("User not found");
+    }
+    User editingUser = UserRequest.mapToEntity(userDto);
+    List<Role> roles = new ArrayList<>();
+    userDto.getRoles().stream().map(new Function<Role, Role>() {
+        @Override
+        public Role apply(Role item) {
+            return roleService.getRoleById(item.getName());
+        }
+    }).forEachOrdered(role -> {
+        roles.add(role);
+      });
+    updatingUser.setRoles(userDto.getRoles());
+    updatingUser.setUsername(editingUser.getUsername());
+    updatingUser.setPassword(editingUser.getPassword());
+    userService.save(updatingUser);
+
+    profileService.save(UserRequest.mapToProfile(userDto));
+    return ResponseEntity.badRequest().body("Update user success");
+  }
+
+  @Operation(summary = "Language user choice")
+  @GetMapping("/lang")
+  public ResponseEntity language() {
+    return ResponseEntity.ok(Translator.toLocale("user.add.success"));
+  }
+
+  @PostMapping("/send-email")
+  public ResponseEntity<?> sendMail(@RequestBody SendMailRequest sendMailRequest) {
+     try {
+      mailService.sendConfirmLinkToEmail(sendMailRequest.getRecipients(), 01L, "123");
+      return ResponseEntity.ok("sent link confirm to your email, please check email");
+     } catch (Exception e) {
+      log.error("Sending email was failure, error: {}", e.getMessage());
+      throw new CustomException("Sending email was failure: " );
+     }
+  }
+
+  @PostMapping("/confirm-user/{idUser}")
+  public ResponseEntity<?> confirmUser(@Min(1) @PathVariable Long idUser, @RequestParam String code) {
+    try {
+      //check user and code 
+      boolean check = mailService.checkCodeUser(idUser, code);
+      if (check) {
+        return ResponseEntity.ok("success");
+      }
+      throw new CustomException("Confirm failed");
+    } catch (Exception e) {
+      throw new CustomException("Confirm failed");
+    } finally {
+      //
+    }
+  }
+
+}

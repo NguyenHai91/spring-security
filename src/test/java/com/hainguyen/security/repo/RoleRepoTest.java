@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.hainguyen.security.model.Role;
-import com.hainguyen.security.repository.RoleRepository;
+import com.hainguyen.security.role.Role;
+import com.hainguyen.security.role.RoleRepository;
 
 @DataJpaTest
 public class RoleRepoTest {

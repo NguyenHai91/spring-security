@@ -9,8 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.hainguyen.security.model.User;
-import com.hainguyen.security.repository.UserRepository;
+import com.hainguyen.security.user.User;
+import com.hainguyen.security.user.UserRepository;
+import com.hainguyen.security.user.UserService;
 
 public class UserServiceTest {
     @MockBean
