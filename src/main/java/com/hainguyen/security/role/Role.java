@@ -15,5 +15,4 @@ public class Role {
   
   private String description;
 
-
 }

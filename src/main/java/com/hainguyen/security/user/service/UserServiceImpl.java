@@ -9,12 +9,13 @@ import com.hainguyen.security.common.exception.CustomException;
 import com.hainguyen.security.user.User;
 import com.hainguyen.security.user.UserRepository;
 
+
 import jakarta.transaction.Transactional;
 
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
+  @Autowired
   private UserRepository repo;
 
   @Override

@@ -1,4 +1,4 @@
-package com.hainguyen.security.config;
+package com.hainguyen.security.common.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

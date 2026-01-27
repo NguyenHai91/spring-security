@@ -1,7 +1,6 @@
 package com.hainguyen.security.role.service;
 
 import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.hainguyen.security.role.Role;

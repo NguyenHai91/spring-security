@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hainguyen.security.role.service.RoleService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+@Tag(name = "Role Controller")
 @RequestMapping("/api/role")
 @RestController
 public class RoleController {

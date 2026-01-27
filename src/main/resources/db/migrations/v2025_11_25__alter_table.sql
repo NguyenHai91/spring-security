@@ -1,0 +1,3 @@
+
+ALTER TABLE tests
+ADD COLUMN birth_date VARCHAR(100);

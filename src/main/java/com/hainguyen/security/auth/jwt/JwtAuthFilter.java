@@ -1,7 +1,6 @@
 package com.hainguyen.security.auth.jwt;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;

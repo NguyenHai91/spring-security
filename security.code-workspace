@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive",
+		"maven.view": "flat",
+		"java.debug.settings.onBuildFailureProceed": true
+	}
+}

@@ -1,8 +1,10 @@
-package com.hainguyen.security.auth.dto;
+package com.hainguyen.security.user.dto;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import com.hainguyen.security.common.enums.EGender;
 
 import com.hainguyen.security.profile.Profile;
 import com.hainguyen.security.role.Role;

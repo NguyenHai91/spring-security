@@ -13,6 +13,7 @@ import com.hainguyen.security.user.User;
 import com.hainguyen.security.user.UserRepository;
 import com.hainguyen.security.user.service.UserService;
 
+
 public class UserServiceTest {
     @MockBean
     private UserRepository repo;

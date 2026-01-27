@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hainguyen.security.auth.dto.UserRequest;
+import com.hainguyen.security.user.dto.UserRequest;
 import com.hainguyen.security.user.User;
 import com.hainguyen.security.user.UserController;
 import com.hainguyen.security.user.UserRepository;

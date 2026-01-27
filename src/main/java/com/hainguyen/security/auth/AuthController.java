@@ -1,7 +1,9 @@
 package com.hainguyen.security.auth;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 
 import com.hainguyen.security.auth.dto.AuthRequest;
 import com.hainguyen.security.auth.dto.AuthResponse;
@@ -24,17 +27,24 @@ import com.hainguyen.security.common.exception.CustomException;
 import com.hainguyen.security.common.redis.service.RedisTokenService;
 import com.hainguyen.security.user.User;
 import com.hainguyen.security.user.service.UserService;
+import com.hainguyen.security.auth.oauth2.OAuthService;
 
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
+@Tag(name = "Auth Controller")
 @Slf4j
 @RequestMapping("/api/auth")
 @RestController
 public class AuthController {
+
+  @Autowired
+  private OAuthService oauthService;
 
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
   
@@ -49,6 +59,8 @@ public class AuthController {
 
   @Autowired
   private RedisTokenService redisTokenService;
+
+  private static Logger logger = Logger.getLogger(AuthController.class);
 
   @PostMapping(value = "/login")
   public ResponseEntity login(@RequestBody AuthRequest authLogin) {
@@ -148,9 +160,9 @@ public class AuthController {
     tokenRecord.setStatus(true);
     tokenService.save(tokenRecord);
     //send email confirm link
-    String confirmLink = String.format("curl --location 'http://localhost:3000/api/auth/confirm-reset' \\\n" +
-                         "header 'accept: */*' \\\n" +
-                         "header 'Content-Type: application/json' \\\n" +
+    String confirmLink = String.format("curl --location 'http://localhost:3000/api/auth/confirm-reset' \n" +
+                         "header 'accept: */*' \n" +
+                         "header 'Content-Type: application/json' \n" +
                          "--data 'resetKey:%s'", resetKey);
     return ResponseEntity.ok(confirmLink);
   }
@@ -187,4 +199,45 @@ public class AuthController {
     userService.changePassword(user, password);
     return ResponseEntity.ok("password had changed success");
   }
+
+  // OAuth2
+  @GetMapping("/social")
+  public ResponseEntity<String> socialAuth(
+    @RequestParam("login_type") String loginType,
+    HttpServletRequest request
+  ) {
+    loginType = loginType.trim().toLowerCase();
+    String url = oauthService.generateAuthUrl(loginType);
+    return ResponseEntity.ok(url);
+  }
+
+  @GetMapping("/facebook/callback")
+  public ResponseEntity callbackOauthFacebook(
+    @RequestParam("code") String code,
+    HttpServletRequest request
+  ) throws RestClientException, IOException {
+    Map<String, Object> userInfo = oauthService.authenticateAndFetchProfile(code, "facebook");
+
+    if (userInfo == null) {
+      return ResponseEntity.badRequest().body("authenticate with facebook failed");
+    }
+
+    return ResponseEntity.ok(userInfo);
+  }
+
+  @GetMapping("/google/callback")
+  public ResponseEntity callbackOauthGoogle(
+    @RequestParam("code") String code,
+    HttpServletRequest request
+  ) throws RestClientException, IOException {
+    Map<String, Object> userInfo = oauthService.authenticateAndFetchProfile(code, "google");
+
+    if (userInfo == null) {
+      return ResponseEntity.badRequest().body("Failed to authenticate");
+    }
+
+    return ResponseEntity.ok(userInfo);
+  }
+
+
 }

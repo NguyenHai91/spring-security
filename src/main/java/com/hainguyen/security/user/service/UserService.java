@@ -1,11 +1,9 @@
 package com.hainguyen.security.user.service;
 
 import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.hainguyen.security.user.User;
-
 
 public interface UserService {
   

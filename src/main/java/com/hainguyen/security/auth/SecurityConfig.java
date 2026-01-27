@@ -2,7 +2,6 @@ package com.hainguyen.security.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.hainguyen.security.auth.jwt.JwtAuthFilter;
-import com.hainguyen.security.auth.oauth2.JWTtoUserConvertor;
 
 
 @Configuration
@@ -51,8 +49,6 @@ public class SecurityConfig {
     return new JwtAuthFilter(exceptionResolver);
   }
 
-  @Autowired
-  public JWTtoUserConvertor jWtToUserConvertor;
 
   // @Bean
   // WebMvcConfigurer corsConfigurer() {
@@ -90,6 +86,5 @@ public class SecurityConfig {
   WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.ignoring().requestMatchers("/static/js/**", "/static/css/**");
   }
-
 
 }

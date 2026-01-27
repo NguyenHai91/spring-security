@@ -1,4 +1,4 @@
-package com.hainguyen.security.config.i18n;
+package com.hainguyen.security.common.i18n;
 
 import java.util.Locale;
 
