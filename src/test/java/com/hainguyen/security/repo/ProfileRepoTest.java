@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import com.hainguyen.security.model.Profile;
-import com.hainguyen.security.model.Role;
-import com.hainguyen.security.model.User;
-import com.hainguyen.security.repository.ProfileRepository;
+import com.hainguyen.security.profile.Profile;
+import com.hainguyen.security.profile.ProfileRepository;
+import com.hainguyen.security.role.Role;
+import com.hainguyen.security.user.User;
 
 @DataJpaTest
 public class ProfileRepoTest {

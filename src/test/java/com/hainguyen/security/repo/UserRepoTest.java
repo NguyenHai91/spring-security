@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import com.hainguyen.security.model.User;
-import com.hainguyen.security.repository.UserRepository;
+import com.hainguyen.security.user.User;
+import com.hainguyen.security.user.UserRepository;
 
 @DataJpaTest
 public class UserRepoTest {

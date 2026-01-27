@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hainguyen.security.dto.request.AuthRequest;
-import com.hainguyen.security.dto.request.ResetPassword;
-import com.hainguyen.security.dto.response.AuthResponse;
-import com.hainguyen.security.exception.CustomException;
-import com.hainguyen.security.model.Token;
-import com.hainguyen.security.model.User;
-import com.hainguyen.security.security.jwt.JwtTokenUtils;
-import com.hainguyen.security.service.RedisTokenService;
-import com.hainguyen.security.service.TokenService;
-import com.hainguyen.security.service.UserService;
+import com.hainguyen.security.auth.dto.AuthRequest;
+import com.hainguyen.security.auth.dto.AuthResponse;
+import com.hainguyen.security.auth.dto.ResetPassword;
+import com.hainguyen.security.auth.jwt.JwtTokenUtils;
+import com.hainguyen.security.auth.token.Token;
+import com.hainguyen.security.auth.token.service.TokenService;
+import com.hainguyen.security.common.exception.CustomException;
+import com.hainguyen.security.common.redis.service.RedisTokenService;
+import com.hainguyen.security.user.User;
+import com.hainguyen.security.user.service.UserService;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
